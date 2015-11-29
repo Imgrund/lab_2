@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<definitions id="Definition"
+             targetNamespace="http://www.jboss.org/drools"
+             typeLanguage="http://www.java.com/javaTypes"
+             expressionLanguage="http://www.mvel.org/2.0"
+             xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://www.omg.org/spec/BPMN/20100524/MODEL BPMN20.xsd"
+             xmlns:g="http://www.jboss.org/drools/flow/gpd"
+             xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI"
+             xmlns:dc="http://www.omg.org/spec/DD/20100524/DC"
+             xmlns:di="http://www.omg.org/spec/DD/20100524/DI"
+             xmlns:tns="http://www.jboss.org/drools">
+
+  <itemDefinition id="_personItem" structureRef="Person" />
+  <itemDefinition id="_requestItem" structureRef="Request" />
+
+  <process processType="Private" isExecutable="true" id="com.sample.bpmn.hello" name="Hello World" tns:packageName="com.sample" >
+
+    <extensionElements>
+     <tns:import name="com.sample.Person" />
+     <tns:import name="com.sample.Request" />
+    </extensionElements>
+    <!-- process variables -->
+    <property id="person" itemSubjectRef="_personItem"/>
+    <property id="request" itemSubjectRef="_requestItem"/>
+
+    <!-- nodes -->
+    <startEvent id="_1" name="StartProcess" />
+    <endEvent id="_3" name="EndProcess" >
+        <terminateEventDefinition />
+    </endEvent>
+    <scriptTask id="_4" name="Welcome" >
+      <script>System.out.println("Willkommen: "+request.requester.name)
+System.out.println("Your score is: "+request.requester.getScore())
+System.out.println("Your money on account is: "+person.getMoney())
+System.out.println("You requested: "+request.getAmount())
+System.out.println("Has Dispo: "+request.requester.hasDispo())</script>
+    </scriptTask>
+    <businessRuleTask id="_5" name="Simple Rule" g:ruleFlowGroup="rfg-simple" >
+    </businessRuleTask>
+    <scriptTask id="_6" name="Request allowed" >
+      <script>System.out.println("Request allowed.");
+request.requester.setMoney(request.requester.money - request.amount);
+System.out.println("Your current balance is: " + request.requester.money);</script>
+    </scriptTask>
+    <scriptTask id="_7" name="Request disallowed" >
+      <script>System.out.println("Request disallowed.");</script>
+    </scriptTask>
+    <exclusiveGateway id="_8" name="Gateway" gatewayDirection="Diverging" />
+    <exclusiveGateway id="_9" name="Gateway" gatewayDirection="Converging" />
+
+    <!-- connections -->
+    <sequenceFlow id="_9-_3" sourceRef="_9" targetRef="_3" />
+    <sequenceFlow id="_1-_4" sourceRef="_1" targetRef="_4" />
+    <sequenceFlow id="_4-_5" sourceRef="_4" targetRef="_5" />
+    <sequenceFlow id="_8-_6" sourceRef="_8" targetRef="_6" name="valid" >
+      <conditionExpression xsi:type="tFormalExpression" >return (request.isValid == true);</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_8-_7" sourceRef="_8" targetRef="_7" name="invalid" tns:priority="1" >
+      <conditionExpression xsi:type="tFormalExpression" >return (request.isValid == false);
+</conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="_5-_8" sourceRef="_5" targetRef="_8" />
+    <sequenceFlow id="_7-_9" sourceRef="_7" targetRef="_9" />
+    <sequenceFlow id="_6-_9" sourceRef="_6" targetRef="_9" />
+
+  </process>
+
+  <bpmndi:BPMNDiagram>
+    <bpmndi:BPMNPlane bpmnElement="com.sample.bpmn.hello" >
+      <bpmndi:BPMNShape bpmnElement="_1" >
+        <dc:Bounds x="25" y="283" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_3" >
+        <dc:Bounds x="932" y="287" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_4" >
+        <dc:Bounds x="150" y="283" width="80" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_5" >
+        <dc:Bounds x="302" y="281" width="80" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_6" >
+        <dc:Bounds x="610" y="194" width="80" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_7" >
+        <dc:Bounds x="611" y="397" width="80" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_8" >
+        <dc:Bounds x="468" y="281" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="_9" >
+        <dc:Bounds x="794" y="288" width="48" height="48" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="_9-_3" >
+        <di:waypoint x="818" y="312" />
+        <di:waypoint x="956" y="311" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_1-_4" >
+        <di:waypoint x="49" y="307" />
+        <di:waypoint x="190" y="307" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_4-_5" >
+        <di:waypoint x="190" y="307" />
+        <di:waypoint x="342" y="305" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_8-_6" >
+        <di:waypoint x="492" y="305" />
+        <di:waypoint x="650" y="218" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_8-_7" >
+        <di:waypoint x="492" y="305" />
+        <di:waypoint x="651" y="421" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_5-_8" >
+        <di:waypoint x="342" y="305" />
+        <di:waypoint x="492" y="305" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_7-_9" >
+        <di:waypoint x="651" y="421" />
+        <di:waypoint x="818" y="312" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="_6-_9" >
+        <di:waypoint x="650" y="218" />
+        <di:waypoint x="818" y="312" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+
+</definitions>
